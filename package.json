@@ -59,6 +59,7 @@
   },
   "peerDependencies": {},
   "dependencies": {
+    "oicq": "^1.18.3",
     "cuid": "^2.1.8",
     "faker": "^5.5.3",
     "typed-emitter": "^1.3.1"

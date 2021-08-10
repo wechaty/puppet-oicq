@@ -24,19 +24,16 @@ import {
   EventMessagePayload,
 }                         from 'wechaty-puppet'
 import {
-  PuppetMock,
-  mock,
-}               from '../src/mod'
+  PuppetOICQ,
+}      from '../src/mod'
 
-const mocker = new mock.Mocker()
-mocker.use(mock.SimpleEnvironment())
 
 /**
  *
  * 1. Declare your Bot!
  *
  */
-const puppet = new PuppetMock({ mocker })
+const puppet = new PuppetOICQ({})
 
 /**
  *
@@ -113,6 +110,8 @@ function onError (payload: EventErrorPayload) {
 async function onMessage (payload: EventMessagePayload) {
   const msgPayload = await puppet.messagePayload(payload.messageId)
   console.info(JSON.stringify(msgPayload))
+  if (msgPayload.text === 'ding')
+    await puppet.messageSendText(msgPayload.fromId!, 'dong')
 }
 
 /**
