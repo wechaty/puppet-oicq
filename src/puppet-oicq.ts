@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  *   Wechaty - https://github.com/chatie/wechaty
  *
@@ -39,163 +40,208 @@ import {
   VERSION,
 }                                   from './config'
 
-
 export type PuppetOICQOptions = PuppetOptions
 
 class PuppetOICQ extends Puppet {
-  contactSelfName(_name: string): Promise<void> {
+
+  contactSelfName (_name: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  contactSelfQRCode(): Promise<string> {
+
+  contactSelfQRCode (): Promise<string> {
     throw new Error('Method not implemented.')
   }
-  contactSelfSignature(_signature: string): Promise<void> {
+
+  contactSelfSignature (_signature: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  tagContactAdd(_tagId: string, _contactId: string): Promise<void> {
+
+  tagContactAdd (_tagId: string, _contactId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  tagContactDelete(_tagId: string): Promise<void> {
+
+  tagContactDelete (_tagId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
+
   tagContactList(contactId: string): Promise<string[]>
   tagContactList(): Promise<string[]>
-  tagContactList(_contactId?: any): Promise<string[]> {
+  tagContactList (_contactId?: any): Promise<string[]> {
     throw new Error('Method not implemented.')
   }
-  tagContactRemove(_tagId: string, _contactId: string): Promise<void> {
+
+  tagContactRemove (_tagId: string, _contactId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
+
   contactAlias(contactId: string): Promise<string>
   contactAlias(contactId: string, alias: string): Promise<void>
-  contactAlias(_contactId: any, _alias?: any): Promise<void> | Promise<string> {
+  contactAlias (_contactId: any, _alias?: any): Promise<void> | Promise<string> {
     throw new Error('Method not implemented.')
   }
+
   contactAvatar(contactId: string): Promise<FileBox>
   contactAvatar(contactId: string, file: FileBox): Promise<void>
-  contactAvatar(_contactId: any, _file?: any): Promise<void> | Promise<FileBox> {
+  contactAvatar (_contactId: any, _file?: any): Promise<void> | Promise<FileBox> {
     throw new Error('Method not implemented.')
   }
-  contactPhone(_contactId: string, _phoneList: string[]): Promise<void> {
+
+  contactPhone (_contactId: string, _phoneList: string[]): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  contactCorporationRemark(_contactId: string, _corporationRemark: string): Promise<void> {
+
+  contactCorporationRemark (_contactId: string, _corporationRemark: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  contactDescription(_contactId: string, _description: string): Promise<void> {
+
+  contactDescription (_contactId: string, _description: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  contactList(): Promise<string[]> {
+
+  contactList (): Promise<string[]> {
     throw new Error('Method not implemented.')
   }
-  protected contactRawPayload(_contactId: string): Promise<any> {
+
+  protected contactRawPayload (_contactId: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
-  protected contactRawPayloadParser(_rawPayload: any): Promise<ContactPayload> {
+
+  protected contactRawPayloadParser (_rawPayload: any): Promise<ContactPayload> {
     throw new Error('Method not implemented.')
   }
-  friendshipAccept(_friendshipId: string): Promise<void> {
+
+  friendshipAccept (_friendshipId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  friendshipAdd(_contactId: string, _option?: FriendshipAddOptions): Promise<void> {
+
+  friendshipAdd (_contactId: string, _option?: FriendshipAddOptions): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  friendshipSearchPhone(_phone: string): Promise<string> {
+
+  friendshipSearchPhone (_phone: string): Promise<string> {
     throw new Error('Method not implemented.')
   }
-  friendshipSearchWeixin(_weixin: string): Promise<string> {
+
+  friendshipSearchWeixin (_weixin: string): Promise<string> {
     throw new Error('Method not implemented.')
   }
-  protected friendshipRawPayload(_friendshipId: string): Promise<any> {
+
+  protected friendshipRawPayload (_friendshipId: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
-  protected friendshipRawPayloadParser(_rawPayload: any): Promise<FriendshipPayload> {
+
+  protected friendshipRawPayloadParser (_rawPayload: any): Promise<FriendshipPayload> {
     throw new Error('Method not implemented.')
   }
-  conversationReadMark(_conversationId: string, _hasRead?: boolean): Promise<boolean | void> {
+
+  conversationReadMark (_conversationId: string, _hasRead?: boolean): Promise<boolean | void> {
     throw new Error('Method not implemented.')
   }
-  messageContact(_messageId: string): Promise<string> {
+
+  messageContact (_messageId: string): Promise<string> {
     throw new Error('Method not implemented.')
   }
-  messageFile(_messageId: string): Promise<FileBox> {
+
+  messageFile (_messageId: string): Promise<FileBox> {
     throw new Error('Method not implemented.')
   }
-  messageImage(_messageId: string, _imageType: ImageType): Promise<FileBox> {
+
+  messageImage (_messageId: string, _imageType: ImageType): Promise<FileBox> {
     throw new Error('Method not implemented.')
   }
-  messageMiniProgram(_messageId: string): Promise<MiniProgramPayload> {
+
+  messageMiniProgram (_messageId: string): Promise<MiniProgramPayload> {
     throw new Error('Method not implemented.')
   }
-  messageUrl(_messageId: string): Promise<UrlLinkPayload> {
+
+  messageUrl (_messageId: string): Promise<UrlLinkPayload> {
     throw new Error('Method not implemented.')
   }
-  messageForward(_conversationId: string, _messageId: string): Promise<string | void> {
+
+  messageForward (_conversationId: string, _messageId: string): Promise<string | void> {
     throw new Error('Method not implemented.')
   }
-  messageRecall(_messageId: string): Promise<boolean> {
+
+  messageRecall (_messageId: string): Promise<boolean> {
     throw new Error('Method not implemented.')
   }
-  roomInvitationAccept(_roomInvitationId: string): Promise<void> {
+
+  roomInvitationAccept (_roomInvitationId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  protected roomInvitationRawPayload(_roomInvitationId: string): Promise<any> {
+
+  protected roomInvitationRawPayload (_roomInvitationId: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
-  protected roomInvitationRawPayloadParser(_rawPayload: any): Promise<RoomInvitationPayload> {
+
+  protected roomInvitationRawPayloadParser (_rawPayload: any): Promise<RoomInvitationPayload> {
     throw new Error('Method not implemented.')
   }
-  roomAdd(_roomId: string, _contactId: string, _inviteOnly?: boolean): Promise<void> {
+
+  roomAdd (_roomId: string, _contactId: string, _inviteOnly?: boolean): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  roomAvatar(_roomId: string): Promise<FileBox> {
+
+  roomAvatar (_roomId: string): Promise<FileBox> {
     throw new Error('Method not implemented.')
   }
-  roomCreate(_contactIdList: string[], _topic?: string): Promise<string> {
+
+  roomCreate (_contactIdList: string[], _topic?: string): Promise<string> {
     throw new Error('Method not implemented.')
   }
-  roomDel(_roomId: string, _contactId: string): Promise<void> {
+
+  roomDel (_roomId: string, _contactId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  roomList(): Promise<string[]> {
+
+  roomList (): Promise<string[]> {
     throw new Error('Method not implemented.')
   }
-  roomQRCode(_roomId: string): Promise<string> {
+
+  roomQRCode (_roomId: string): Promise<string> {
     throw new Error('Method not implemented.')
   }
-  roomQuit(_roomId: string): Promise<void> {
+
+  roomQuit (_roomId: string): Promise<void> {
     throw new Error('Method not implemented.')
   }
+
   roomTopic(roomId: string): Promise<string>
   roomTopic(roomId: string, topic: string): Promise<void>
-  roomTopic(_roomId: any, _topic?: any): Promise<void> | Promise<string> {
+  roomTopic (_roomId: any, _topic?: any): Promise<void> | Promise<string> {
     throw new Error('Method not implemented.')
   }
-  protected roomRawPayload(_roomId: string): Promise<any> {
+
+  protected roomRawPayload (_roomId: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
-  protected roomRawPayloadParser(_rawPayload: any): Promise<RoomPayload> {
+
+  protected roomRawPayloadParser (_rawPayload: any): Promise<RoomPayload> {
     throw new Error('Method not implemented.')
   }
+
   roomAnnounce(roomId: string): Promise<string>
   roomAnnounce(roomId: string, text: string): Promise<void>
-  roomAnnounce(_roomId: any, _text?: any): Promise<void> | Promise<string> {
+  roomAnnounce (_roomId: any, _text?: any): Promise<void> | Promise<string> {
     throw new Error('Method not implemented.')
   }
-  roomMemberList(_roomId: string): Promise<string[]> {
+
+  roomMemberList (_roomId: string): Promise<string[]> {
     throw new Error('Method not implemented.')
   }
-  protected roomMemberRawPayload(_roomId: string, _contactId: string): Promise<any> {
+
+  protected roomMemberRawPayload (_roomId: string, _contactId: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
-  protected roomMemberRawPayloadParser(_rawPayload: any): Promise<RoomMemberPayload> {
+
+  protected roomMemberRawPayloadParser (_rawPayload: any): Promise<RoomMemberPayload> {
     throw new Error('Method not implemented.')
   }
 
   static override readonly VERSION = VERSION
 
   private loopTimer?: NodeJS.Timer
-  private oicq_client?: any
+  private oicqClient?: any
   private QQNumber?: String
   messageStore = {} as any
 
@@ -205,7 +251,6 @@ class PuppetOICQ extends Puppet {
     super(options)
     log.verbose('PuppetOICQ', 'constructor()')
   }
-
 
   override async start (): Promise<void> {
     log.verbose('PuppetOICQ', 'start()')
@@ -217,33 +262,31 @@ class PuppetOICQ extends Puppet {
     }
 
     this.state.on('pending')
-    
-    this.QQNumber = '1962099319'
-    this.oicq_client = require("oicq").createClient(this.QQNumber)
 
-    this.oicq_client.on("system.login.qrcode", function (this:any) {
-      process.stdin.once("data", () => {
+    this.QQNumber = '1962099319'
+    this.oicqClient = require('oicq').createClient(this.QQNumber)
+
+    this.oicqClient.on('system.login.qrcode', function (this:any) {
+      process.stdin.once('data', () => {
         console.log('enter pressed, try to login')
         this.login()
-        //this.emit('login', { contactId: this.QQNumber || '' })
+        // this.emit('login', { contactId: this.QQNumber || '' })
       })
     })
-    .on("system.login.error", function (this:any, error: any) {
-      if (error.code < 0)
-        this.login()
-    })
-    .login()
+      .on('system.login.error', function (this:any, error: any) {
+        if (error.code < 0) { this.login() }
+      })
+      .login()
 
-    let that = this;
-    this.oicq_client.on("message", function (oicqMessage: any) {
+    const that = this
+    this.oicqClient.on('message', function (oicqMessage: any) {
       that.messageStore[oicqMessage.message_id] = oicqMessage
       console.log(oicqMessage.message_id)
-      that.emit('message', {messageId: oicqMessage.message_id})
+      that.emit('message', { messageId: oicqMessage.message_id })
       // /*if (e.raw_message === "hello") {
       //   e.reply("hello world")
       // }*/
     })
-    
 
     this.state.on(true)
   }
@@ -262,7 +305,6 @@ class PuppetOICQ extends Puppet {
     if (this.loopTimer) {
       clearInterval(this.loopTimer)
     }
-
 
     if (this.logonoff()) {
       await this.logout()
@@ -308,29 +350,30 @@ class PuppetOICQ extends Puppet {
     }
     return payload
   }
+
   override async messageRawPayload (oicqMessageId: string): Promise<any> {
     return this.messageStore[oicqMessageId]
   }
 
-
-  async messageSendText(conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
-    await this.oicq_client.sendPrivateMsg(conversationId, text)
+  async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
+    await this.oicqClient.sendPrivateMsg(conversationId, text)
   }
 
-  async messageSendContact(_conversationId: string, _contactId: string): Promise<string | void> {
-    throw new Error('Method not implemented.')
-  }
-  async messageSendFile(_conversationId: string, _file: FileBox): Promise<string | void> {
-    throw new Error('Method not implemented.')
-  }
-  async messageSendMiniProgram(_conversationId: string, _miniProgramPayload: MiniProgramPayload): Promise<string | void> {
-    throw new Error('Method not implemented.')
-  }
-  async messageSendUrl(_conversationId: string, _urlLinkPayload: UrlLinkPayload): Promise<string | void> {
+  async messageSendContact (_conversationId: string, _contactId: string): Promise<string | void> {
     throw new Error('Method not implemented.')
   }
 
+  async messageSendFile (_conversationId: string, _file: FileBox): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
 
+  async messageSendMiniProgram (_conversationId: string, _miniProgramPayload: MiniProgramPayload): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
+
+  async messageSendUrl (_conversationId: string, _urlLinkPayload: UrlLinkPayload): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
 
 }
 
