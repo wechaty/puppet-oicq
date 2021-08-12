@@ -1,149 +1,102 @@
-# PUPPET-MOCK
+# WECHATY PUPPET OICQ (基于[OICQ](https://github.com/takayama-lily/oicq)项目的QQ机器人)
 
-[![NPM Version](https://badge.fury.io/js/wechaty-puppet-mock.svg)](https://badge.fury.io/js/wechaty-puppet-mock)
-[![npm (tag)](https://img.shields.io/npm/v/wechaty-puppet-mock/next.svg)](https://www.npmjs.com/package/wechaty-puppet-mock?activeTab=versions)
-[![NPM](https://github.com/wechaty/wechaty-puppet-mock/workflows/NPM/badge.svg)](https://github.com/wechaty/wechaty-puppet-mock/actions?query=workflow%3ANPM)
+[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://wechaty.js.org)
 
-![chatie puppet](https://wechaty.github.io/wechaty-puppet-mock/images/mock.png)
+[![NPM Version](https://badge.fury.io/js/wechaty-puppet-lark.svg)](https://badge.fury.io/js/wechaty-puppet-lark)
+[![npm (tag)](https://img.shields.io/npm/v/wechaty-puppet-lark/next.svg)](https://www.npmjs.com/package/wechaty-puppet-lark?activeTab=versions)
 
-> Picture Credit: <https://softwareautotools.com/2017/03/01/mocking-explained-in-python/>
+## 运行方法
 
-[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://github.com/wechaty/wechaty)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
+### 安装依赖
 
-Puppet Mocker & Starter Template for Wechaty, it is very useful when you:
+将代码clone到本地，执行`npm install`
 
-1. Want to test the Wechaty framework with a mock puppet, or
-1. You want to write your own Puppet implenmentation.
+### 运行示例代码
 
-Then `PuppetMock` will helps you a lot.
+`npm run start`
 
-## USAGE
+按照提示完成扫码完成后按下回车，即可运行示例机器人
 
-### Puppet Mock
+## Getting Started with Wechaty
 
-```ts
-import { Wechaty }   from 'wechaty'
-import { PuppetMock } from 'wechaty-puppet-mock'
-
-const puppet  = new PuppetMock()
-const wechaty = new Wechaty({ puppet })
-
-wechaty.start()
+```sh
+export WECHATY_PUPPET=wechaty-puppet-lark
+npm start
 ```
 
-### Mocker & Environment
+Learn more for building your first Wechaty bot at <https://github.com/wechaty/wechaty-getting-started>
 
-```ts
-import {
-  PuppetMock,
-  Mocker,
-  SimpleEnvironment,
-}                     from 'wechaty-puppet-mock'
 
-const mocker = new Mocker()
-mocker.use(SimpleEnvironment())
+## 项目介绍
 
-const puppet = new PuppetMock({ mocker })
-const wechaty = new Wechaty({ puppet })
+“开源软件供应链点亮计划-暑期2021”（以下简称 暑期2021）是由中科院软件所与 openEuler 社区共同举办的一项面向高校学生的暑期活动，旨在鼓励在校学生积极参与开源软件的开发维护，促进国内优秀开源软件社区的蓬勃发展。
 
-wechaty.start()
+根据项目的难易程度和完成情况，参与者还可获取“开源软件供应链点亮计划-暑期2021”活动奖金和奖杯。
 
-// The Mocker will start perform the SimpleEnvironment...
-```
+官网：<https://summer.iscas.ac.cn>
 
-See: [SimpleEnvironment](src/mocker/environment.ts)
+## Wechaty
 
-## API Reference
+[Wechaty](https://wechaty.js.org) 是一个开源聊天机器人框架SDK，具有高度封装、高可用的特性，支持NodeJs, Python, Go 和Java 等多语言版本。在过去的5年中，服务了数万名开发者，收获了 Github 的 9600 Star。同时配置了完整的DevOps体系并持续按照Apache 的方式管理技术社区。
 
-### Mocker
+## 项目名称
 
-```ts
-import { Wechaty }  from 'wechaty'
-import { PuppetMock, mock }   from 'wechaty-puppet-mock'
+开发支持 QQ 聊天软件的 [Wechaty Puppet Provider](https://wechaty.js.org/docs/puppet-providers/) 模块
 
-const mocker = new mock.Mocker()
-const puppet = new PuppetMock({ mocker })
-const bot = new Wechaty({ puppet })
+## 背景介绍
 
-await bot.start()
+Wechaty 社区目前已经支持微信、Whatsapp、企业微信、飞书等常见流行即时通讯工具，并且能够通过多语言 SDK （比如 Python Wechaty） 进行调用。
 
-mocker.scan('https://github.com/wechaty', 1)
+QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 的项目中，Wechaty 希望可以实现对 QQ Chatbot 的支持。通过 Wechaty Puppet 的接口，可以将 QQ 进行 RPA 封装，使其成为 `wechaty-puppet-qq`  供 Wechaty 开发者方便接入 QQ 平台，使其成为 Wechaty 可以使用的社区生态模块。
 
-const user = mocker.createContact()
-mocker.login(user)
+## 需求介绍
 
-const contact = mocker.createContact()
-const room = mocker.createRoom()
+使用 <https://github.com/wechaty/wechaty-puppet-mock> 项目作为模版，参考社区其他的 [Wechaty Puppet Provider](https://wechaty.js.org/docs/puppet-providers/) 代码模块，对 QQ 进行规划、RPA选型、原型测试，和最终的代码封装。
 
-user.say('Hello').to(contact)
-contact.say('World').to(user)
-```
+这里有一个专门讲解如何开发 Wechaty Puppet Provider 的 workshop 视频，它以 `wechaty-puppet-official-account` 作为例子，做了从0到1的入门讲解：[Wechaty Workshop for Puppet Makers: How to make a Puppet for Wechaty](https://wechaty.js.org/2020/08/05/wechaty-puppet-maker/)。通过观看这一个小时的视频，应该可以系统性的了解如何完成构建一个 Wechaty Puppet Provider 模块。
 
-## HELPER UTILITIES
+在初期开发中，能够实现文本消息的接收和发送，即可完成原型验证 POC 。
 
-### StateSwitch
+还可以参考以下链接：
 
-```ts
-this.state.on('pending')
-this.state.on(true)
-this.state.off('pending')
-this.state.off(true)
+1. TypeScript Puppet Official Documentation: https://wechaty.github.io/wechaty-puppet/typedoc/classes/puppet.html
+1. Wechaty Puppet Specification: https://wechaty.js.org/docs/specs/puppet
+1. <https://github.com/wechaty/wechaty-puppet-mock>
 
-await this.state.ready('on')
-await this.state.ready('off')
+## 导师联系方式
 
-```
+1. [李佳芮](https://wechaty.js.org/contributors/lijiarui/): Wechaty co-creator, Founder & CEO of Juzi.BOT (rui@chatie.io)
+1. [李卓桓](https://wechaty.js.org/contributors/huan)：Wechaty creator, Tencent TVP of Chatbot (huan@chatie.io)
 
-### Watchdog
+## 项目产出目标
 
-```ts
-```
+1. 每日代码 commit
+1. 每周提交一份 report （回复本 issue）
+1. 每两周一次在线会议 
+1. 发布 Git Repo `wechaty-puppet-qq`
+1. 可以通过 Wechaty 加载 wechaty-puppet-qq 模块，并通过 QQ RPA 底层，实现文本消息的收发功能
+1. 提供一个 `examples/ding-dong-bot.ts` ，完成“接收到文字消息`ding`时，自动回复消息`dong`\"的功能
+1. 配置 GitHub Actions 实现自动化测试* （可选）
 
-### MemoryCard
+## 项目技术栈
 
-```ts
-await memory.set('config', { id: 1, key: 'xxx' })
-const config = await memory.get('config')
-console.log(config)
-// Output: { id: 1, key: 'xxx' }
-```
+1. TypeScript programming language
+2. Git
+3. [RPA](https://wechaty.js.org/docs/explainations//rpa)
 
-## HISTORY
+## Links
 
-### master
+- https://github.com/wechaty/wishlist/issues/9",
 
-### v0.25 (July 13, 2020)
+## 相关链接
 
-1. Rename `MockXXX` to `XXXMock` for keep the consistent naming style with `PuppetMock`.
-1. Export `mock` namespace and move all related modules under it.
+- [Wechaty](https://wechaty.js.org/v/zh/)
+- [Express](https://www.runoob.com/nodejs/nodejs-express-framework.html)
+- [TypeScripts中文手册](https://www.tslang.cn/docs/handbook/basic-types.html)
 
-### v0.22 (June 4, 2020)
 
-`Mocker` Released. `Mocker` is a manager for controlling the behavior of the Puppet activities.
+## Copyright & License
 
-1. Add `MockContact`, `MockRoom`, and `MockMessage` for `Mockers`
-1. Add `MockEnvironment` for mocking the server behaviors.
-1. Support `Wechaty#Contact.find()` from the `mocker.createContacts()`
-1. Support `Wechaty#Room.find()` from the `mocker.createRooms()`
-1. Support `message` event for `talker`, `listener`, and `room` of `MockMessage`
-
-### v0.0.1 (Jun 27, 2018)
-
-Initial version.
-
-`PuppetMock` is a skelton Puppet without do anything, it will make testing easy when developing Wechaty
-
-## AUTHOR
-
-[Huan LI](http://linkedin.com/in/zixia) \<zixia@zixia.net\>
-
-<a href="https://stackexchange.com/users/265499">
-  <img src="https://stackexchange.com/users/flair/265499.png" width="208" height="58" alt="profile for zixia on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for zixia on Stack Exchange, a network of free, community-driven Q&amp;A sites">
-</a>
-
-## COPYRIGHT & LICENSE
-
-* Code & Docs © 2018 Huan LI \<zixia@zixia.net\>
-* Code released under the Apache-2.0 License
-* Docs released under Creative Commons
+- Code & Docs © 2021-2021 Fairy FAN and Wechaty Contributors
+- Code released under the Apache-2.0 License
+- Docs released under Creative Commons
