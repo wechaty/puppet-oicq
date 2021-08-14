@@ -26,7 +26,6 @@ npm start
 
 Learn more for building your first Wechaty bot at <https://github.com/wechaty/wechaty-getting-started>
 
-
 ## 项目介绍
 
 “开源软件供应链点亮计划-暑期2021”（以下简称 暑期2021）是由中科院软件所与 openEuler 社区共同举办的一项面向高校学生的暑期活动，旨在鼓励在校学生积极参与开源软件的开发维护，促进国内优秀开源软件社区的蓬勃发展。
@@ -59,8 +58,8 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 
 还可以参考以下链接：
 
-1. TypeScript Puppet Official Documentation: https://wechaty.github.io/wechaty-puppet/typedoc/classes/puppet.html
-1. Wechaty Puppet Specification: https://wechaty.js.org/docs/specs/puppet
+1. TypeScript Puppet Official Documentation: <https://wechaty.github.io/wechaty-puppet/typedoc/classes/puppet.html>
+1. Wechaty Puppet Specification: <https://wechaty.js.org/docs/specs/puppet>
 1. <https://github.com/wechaty/wechaty-puppet-mock>
 
 ## 导师联系方式
@@ -72,7 +71,7 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 
 1. 每日代码 commit
 1. 每周提交一份 report （回复本 issue）
-1. 每两周一次在线会议 
+1. 每两周一次在线会议
 1. 发布 Git Repo `wechaty-puppet-qq`
 1. 可以通过 Wechaty 加载 wechaty-puppet-qq 模块，并通过 QQ RPA 底层，实现文本消息的收发功能
 1. 提供一个 `examples/ding-dong-bot.ts` ，完成“接收到文字消息`ding`时，自动回复消息`dong`\"的功能
@@ -86,14 +85,13 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 
 ## Links
 
-- https://github.com/wechaty/wishlist/issues/9",
+- <https://github.com/wechaty/wishlist/issues/9>",
 
 ## 相关链接
 
 - [Wechaty](https://wechaty.js.org/v/zh/)
 - [Express](https://www.runoob.com/nodejs/nodejs-express-framework.html)
 - [TypeScripts中文手册](https://www.tslang.cn/docs/handbook/basic-types.html)
-
 
 ## Copyright & License
 
