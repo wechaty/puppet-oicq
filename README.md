@@ -7,7 +7,6 @@
 
 ## 运行方法
 
-
 ### 配置系统环境变量
 
 1. `WECHATY_PUPPET_OICQ_QQNUMBER`：要登录的QQ号
