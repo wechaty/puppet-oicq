@@ -40,7 +40,9 @@ import {
   VERSION,
 }                                   from './config'
 
-export type PuppetOICQOptions = PuppetOptions
+export type PuppetOICQOptions = PuppetOptions & {
+  QQNumber?: String
+}
 
 class PuppetOICQ extends Puppet {
 
@@ -263,7 +265,7 @@ class PuppetOICQ extends Puppet {
 
     this.state.on('pending')
 
-    this.QQNumber = '1962099319'
+    this.QQNumber = this.options.QQNumber
     this.oicqClient = require('oicq').createClient(this.QQNumber)
 
     this.oicqClient.on('system.login.qrcode', function (this:any) {

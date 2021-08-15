@@ -27,13 +27,14 @@ import {
   PuppetOICQ,
 }      from '../src/mod'
 
-
 /**
  *
  * 1. Declare your Bot!
  *
  */
-const puppet = new PuppetOICQ({})
+const puppet = new PuppetOICQ({
+  QQNumber: process.env['WECHATY_PUPPET_OICQ_QQNUMBER'],
+})
 
 /**
  *
@@ -110,8 +111,9 @@ function onError (payload: EventErrorPayload) {
 async function onMessage (payload: EventMessagePayload) {
   const msgPayload = await puppet.messagePayload(payload.messageId)
   console.info(JSON.stringify(msgPayload))
-  if (msgPayload.text === 'ding')
+  if (msgPayload.text === 'ding') {
     await puppet.messageSendText(msgPayload.fromId!, 'dong')
+  }
 }
 
 /**

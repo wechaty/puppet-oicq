@@ -7,6 +7,11 @@
 
 ## 运行方法
 
+
+### 配置系统环境变量
+
+1. `WECHATY_PUPPET_OICQ_QQNUMBER`：要登录的QQ号
+
 ### 安装依赖
 
 将代码clone到本地，执行`npm install`
