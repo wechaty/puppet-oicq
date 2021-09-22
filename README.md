@@ -9,7 +9,7 @@
 
 ### 配置系统环境变量
 
-1. `WECHATY_PUPPET_OICQ_QQNUMBER`：要登录的QQ号
+1. `WECHATY_PUPPET_OICQ_QQ`：要登录的QQ号
 
 ### 安装依赖
 
