@@ -33,9 +33,7 @@ import {
  * 1. Declare your Bot!
  *
  */
-const puppet = new PuppetOICQ({
-  QQNumber: process.env['WECHATY_PUPPET_OICQ_QQNUMBER'],
-})
+const puppet = new PuppetOICQ()
 
 /**
  *
