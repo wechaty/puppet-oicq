@@ -99,13 +99,11 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 
 ## History
 
-### main
-
-### v0.1
+### main v0.1 (Sep 22, 2021)
 
 - ES Modules support
 
-### v0.0.1
+### v0.0.1 (Jun 22, 2021)
 
 - [OSPP 2021 Project started](https://github.com/wechaty/summer/issues/81)
 
@@ -115,6 +113,6 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 
 ## Copyright & License
 
-- Code & Docs © 2021-2021 Fairy FAN and Wechaty Contributors
+- Code & Docs © 2021-2021 @naivebird and Wechaty Contributors
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
