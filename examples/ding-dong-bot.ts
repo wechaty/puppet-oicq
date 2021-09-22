@@ -16,16 +16,17 @@
  *   limitations under the License.
  *
  */
-import {
+import type {
   EventLogoutPayload,
   EventLoginPayload,
   EventScanPayload,
   EventErrorPayload,
   EventMessagePayload,
 }                         from 'wechaty-puppet'
+
 import {
   PuppetOICQ,
-}      from '../src/mod'
+}             from '../src/mod.js'
 
 /**
  *
