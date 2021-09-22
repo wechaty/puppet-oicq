@@ -6,7 +6,7 @@ import { PuppetOICQ } from './puppet-oicq.js'
 
 // TODO: restore perfect restart testing
 test.skip('perfect restart', async t => {
-  const puppet = new PuppetOICQ({ qq: 918999 })
+  const puppet = new PuppetOICQ({ qq: 12345 })
 
   for (let n = 0; n < 1; n++) {
     await puppet.start()
