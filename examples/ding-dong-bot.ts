@@ -16,25 +16,24 @@
  *   limitations under the License.
  *
  */
-import {
+import type {
   EventLogoutPayload,
   EventLoginPayload,
   EventScanPayload,
   EventErrorPayload,
   EventMessagePayload,
 }                         from 'wechaty-puppet'
+
 import {
   PuppetOICQ,
-}      from '../src/mod'
+}             from '../src/mod.js'
 
 /**
  *
  * 1. Declare your Bot!
  *
  */
-const puppet = new PuppetOICQ({
-  QQNumber: process.env['WECHATY_PUPPET_OICQ_QQNUMBER'],
-})
+const puppet = new PuppetOICQ()
 
 /**
  *

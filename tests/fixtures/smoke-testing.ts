@@ -1,16 +1,17 @@
 #!/usr/bin/env ts-node
 
 import {
-  PuppetMock,
+  PuppetOICQ,
   VERSION,
-}                 from 'wechaty-puppet-mock'
+}                 from 'wechaty-puppet-oicq'
 
 async function main () {
+  const puppet = new PuppetOICQ({ qq: 12345 })
+
   if (VERSION === '0.0.0') {
     throw new Error('version should not be 0.0.0 when prepare for publishing')
   }
 
-  const puppet = new PuppetMock()
   console.info(`Puppet v${puppet.version()} smoke testing passed.`)
   return 0
 }

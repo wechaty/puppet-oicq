@@ -36,15 +36,172 @@ import {
   FriendshipAddOptions,
 }                           from 'wechaty-puppet'
 
+import oicq from 'oicq'
+
 import {
   VERSION,
-}                                   from './config'
+}                           from './config.js'
 
 export type PuppetOICQOptions = PuppetOptions & {
-  QQNumber?: String
+  qq?: number
 }
 
 class PuppetOICQ extends Puppet {
+
+  static override readonly VERSION = VERSION
+
+  #oicqClient?: oicq.Client
+  protected get oicqClient (): oicq.Client {
+    return this.#oicqClient!
+  }
+
+  messageStore = {} as any
+
+  qq: number
+
+  constructor (
+    public override options: PuppetOICQOptions = {},
+  ) {
+    super(options)
+    log.verbose('PuppetOICQ', 'constructor("%s")', JSON.stringify(options))
+
+    if (options.qq) {
+      this.qq = options.qq
+    } else {
+      const qq = parseInt(process.env['WECHATY_PUPPET_OICQ_QQ'] || '')
+      if (isNaN(qq)) {
+        throw new Error('WECHATY_PUPPET_OICQ_QQ should be set a qq number')
+      }
+      this.qq = qq
+    }
+  }
+
+  override async start (): Promise<void> {
+    log.verbose('PuppetOICQ', 'start()')
+
+    if (this.state.on()) {
+      log.warn('PuppetOICQ', 'start() is called on a ON puppet. await ready(on) and return.')
+      await this.state.ready('on')
+      return
+    }
+
+    this.state.on('pending')
+
+    this.#oicqClient = oicq.createClient(this.qq)
+
+    this.oicqClient
+      .on('system.login.qrcode', function (this:any) {
+        process.stdin.once('data', () => {
+          console.log('enter pressed, try to login')
+          this.login()
+          // this.emit('login', { contactId: this.QQNumber || '' })
+        })
+      })
+      .on('system.login.error', function (this:any, error: any) {
+        if (error.code < 0) { this.login() }
+      })
+      .login()
+
+    const that = this
+    this.oicqClient.on('message', function (oicqMessage: any) {
+      that.messageStore[oicqMessage.message_id] = oicqMessage
+      console.log(oicqMessage.message_id)
+      that.emit('message', { messageId: oicqMessage.message_id })
+      // /*if (e.raw_message === "hello") {
+      //   e.reply("hello world")
+      // }*/
+    })
+
+    this.state.on(true)
+  }
+
+  override async stop (): Promise<void> {
+    log.verbose('PuppetOICQ', 'stop()')
+
+    if (this.state.off()) {
+      log.warn('PuppetOICQ', 'stop() is called on a OFF puppet. await ready(off) and return.')
+      await this.state.ready('off')
+      return
+    }
+
+    this.state.off('pending')
+
+    if (this.logonoff()) {
+      await this.logout()
+    }
+
+    // TODO: should we close the oicqClient?
+    this.oicqClient.terminate()
+    this.#oicqClient = undefined
+
+    // await some tasks...
+    this.state.off(true)
+  }
+
+  override login (contactId: string): Promise<void> {
+    log.verbose('PuppetOICQ', 'login()')
+    return super.login(contactId)
+  }
+
+  override async logout (): Promise<void> {
+    log.verbose('PuppetOICQ', 'logout()')
+
+    if (!this.id) {
+      throw new Error('logout before login?')
+    }
+
+    this.emit('logout', { contactId: this.id, data: 'test' }) // before we will throw above by logonoff() when this.user===undefined
+    this.id = undefined
+
+    // TODO: do the logout job
+  }
+
+  override ding (data?: string): void {
+    log.silly('PuppetOICQ', 'ding(%s)', data || '')
+    setTimeout(() => this.emit('dong', { data: data || '' }), 1000)
+  }
+
+  override async messageRawPayloadParser (rawPayload: any): Promise<MessagePayload> {
+    // OICQ qq message Payload -> Puppet message payload
+
+    const payload: MessagePayload = {
+      fromId: rawPayload.sender.user_id,
+      id: rawPayload.message_id,
+      text: rawPayload.raw_message,
+      timestamp: Date.now(),
+      toId: rawPayload.user_id,
+      type: MessageType.Text, // TODO: need to change if message type changed to image and so on
+    }
+    return payload
+  }
+
+  override async messageRawPayload (oicqMessageId: string): Promise<any> {
+    return this.messageStore[oicqMessageId]
+  }
+
+  async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
+    const userId = parseInt(conversationId)
+    if (isNaN(userId)) {
+      throw new Error('oicqClient.sendPrivateMsg() requires number id')
+    }
+    await this.oicqClient.sendPrivateMsg(userId, text)
+  }
+
+  async messageSendContact (_conversationId: string, _contactId: string): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
+
+  async messageSendFile (_conversationId: string, _file: FileBox): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
+
+  async messageSendMiniProgram (_conversationId: string, _miniProgramPayload: MiniProgramPayload): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
+
+  async messageSendUrl (_conversationId: string, _urlLinkPayload: UrlLinkPayload): Promise<string | void> {
+    throw new Error('Method not implemented.')
+  }
 
   contactSelfName (_name: string): Promise<void> {
     throw new Error('Method not implemented.')
@@ -237,143 +394,6 @@ class PuppetOICQ extends Puppet {
   }
 
   protected roomMemberRawPayloadParser (_rawPayload: any): Promise<RoomMemberPayload> {
-    throw new Error('Method not implemented.')
-  }
-
-  static override readonly VERSION = VERSION
-
-  private loopTimer?: NodeJS.Timer
-  private oicqClient?: any
-  private QQNumber?: String
-  messageStore = {} as any
-
-  constructor (
-    public override options: PuppetOICQOptions = {},
-  ) {
-    super(options)
-    log.verbose('PuppetOICQ', 'constructor()')
-  }
-
-  override async start (): Promise<void> {
-    log.verbose('PuppetOICQ', 'start()')
-
-    if (this.state.on()) {
-      log.warn('PuppetOICQ', 'start() is called on a ON puppet. await ready(on) and return.')
-      await this.state.ready('on')
-      return
-    }
-
-    this.state.on('pending')
-
-    this.QQNumber = this.options.QQNumber
-    this.oicqClient = require('oicq').createClient(this.QQNumber)
-
-    this.oicqClient.on('system.login.qrcode', function (this:any) {
-      process.stdin.once('data', () => {
-        console.log('enter pressed, try to login')
-        this.login()
-        // this.emit('login', { contactId: this.QQNumber || '' })
-      })
-    })
-      .on('system.login.error', function (this:any, error: any) {
-        if (error.code < 0) { this.login() }
-      })
-      .login()
-
-    const that = this
-    this.oicqClient.on('message', function (oicqMessage: any) {
-      that.messageStore[oicqMessage.message_id] = oicqMessage
-      console.log(oicqMessage.message_id)
-      that.emit('message', { messageId: oicqMessage.message_id })
-      // /*if (e.raw_message === "hello") {
-      //   e.reply("hello world")
-      // }*/
-    })
-
-    this.state.on(true)
-  }
-
-  override async stop (): Promise<void> {
-    log.verbose('PuppetOICQ', 'stop()')
-
-    if (this.state.off()) {
-      log.warn('PuppetOICQ', 'stop() is called on a OFF puppet. await ready(off) and return.')
-      await this.state.ready('off')
-      return
-    }
-
-    this.state.off('pending')
-
-    if (this.loopTimer) {
-      clearInterval(this.loopTimer)
-    }
-
-    if (this.logonoff()) {
-      await this.logout()
-    }
-
-    // await some tasks...
-    this.state.off(true)
-  }
-
-  override login (contactId: string): Promise<void> {
-    log.verbose('PuppetOICQ', 'login()')
-    return super.login(contactId)
-  }
-
-  override async logout (): Promise<void> {
-    log.verbose('PuppetOICQ', 'logout()')
-
-    if (!this.id) {
-      throw new Error('logout before login?')
-    }
-
-    this.emit('logout', { contactId: this.id, data: 'test' }) // before we will throw above by logonoff() when this.user===undefined
-    this.id = undefined
-
-    // TODO: do the logout job
-  }
-
-  override ding (data?: string): void {
-    log.silly('PuppetOICQ', 'ding(%s)', data || '')
-    setTimeout(() => this.emit('dong', { data: data || '' }), 1000)
-  }
-
-  override async messageRawPayloadParser (rawPayload: any): Promise<MessagePayload> {
-    // OICQ qq message Payload -> Puppet message payload
-
-    const payload: MessagePayload = {
-      fromId: rawPayload.sender.user_id,
-      id: rawPayload.message_id,
-      text: rawPayload.raw_message,
-      timestamp: Date.now(),
-      toId: rawPayload.user_id,
-      type: MessageType.Text, // TODO: need to change if message type changed to image and so on
-    }
-    return payload
-  }
-
-  override async messageRawPayload (oicqMessageId: string): Promise<any> {
-    return this.messageStore[oicqMessageId]
-  }
-
-  async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
-    await this.oicqClient.sendPrivateMsg(conversationId, text)
-  }
-
-  async messageSendContact (_conversationId: string, _contactId: string): Promise<string | void> {
-    throw new Error('Method not implemented.')
-  }
-
-  async messageSendFile (_conversationId: string, _file: FileBox): Promise<string | void> {
-    throw new Error('Method not implemented.')
-  }
-
-  async messageSendMiniProgram (_conversationId: string, _miniProgramPayload: MiniProgramPayload): Promise<string | void> {
-    throw new Error('Method not implemented.')
-  }
-
-  async messageSendUrl (_conversationId: string, _urlLinkPayload: UrlLinkPayload): Promise<string | void> {
     throw new Error('Method not implemented.')
   }
 

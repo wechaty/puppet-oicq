@@ -9,7 +9,7 @@
 
 ### 配置系统环境变量
 
-1. `WECHATY_PUPPET_OICQ_QQNUMBER`：要登录的QQ号
+1. `WECHATY_PUPPET_OICQ_QQ`：要登录的QQ号
 
 ### 安装依赖
 
@@ -97,8 +97,22 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 - [Express](https://www.runoob.com/nodejs/nodejs-express-framework.html)
 - [TypeScripts中文手册](https://www.tslang.cn/docs/handbook/basic-types.html)
 
+## History
+
+### main v0.1 (Sep 22, 2021)
+
+- ES Modules support
+
+### v0.0.1 (Jun 22, 2021)
+
+- [OSPP 2021 Project started](https://github.com/wechaty/summer/issues/81)
+
+## Author
+
+[@naivebird](https://wechaty.js.org/contributors/anaivebird/)
+
 ## Copyright & License
 
-- Code & Docs © 2021-2021 Fairy FAN and Wechaty Contributors
+- Code & Docs © 2021-2021 @naivebird and Wechaty Contributors
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons

@@ -1,5 +1,5 @@
-import { VERSION }    from './version'
-import { PuppetOICQ } from './puppet-oicq'
+import { VERSION }    from './config.js'
+import { PuppetOICQ } from './puppet-oicq.js'
 export {
   VERSION,
   PuppetOICQ,
