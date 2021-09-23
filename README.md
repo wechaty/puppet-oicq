@@ -2,8 +2,8 @@
 
 [![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://wechaty.js.org)
 
-[![NPM Version](https://badge.fury.io/js/wechaty-puppet-lark.svg)](https://badge.fury.io/js/wechaty-puppet-lark)
-[![npm (tag)](https://img.shields.io/npm/v/wechaty-puppet-lark/next.svg)](https://www.npmjs.com/package/wechaty-puppet-lark?activeTab=versions)
+[![NPM Version](https://badge.fury.io/js/wechaty-puppet-oicq.svg)](https://www.npmjs.com/package/wechaty-puppet-oicq)
+[![npm (tag)](https://img.shields.io/npm/v/wechaty-puppet-oicq/next.svg)](https://www.npmjs.com/package/wechaty-puppet-oicq?activeTab=versions)
 
 ## 运行方法
 
@@ -24,7 +24,7 @@
 ## Getting Started with Wechaty
 
 ```sh
-export WECHATY_PUPPET=wechaty-puppet-lark
+export WECHATY_PUPPET=wechaty-puppet-oicq
 npm start
 ```
 
