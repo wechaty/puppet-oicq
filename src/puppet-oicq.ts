@@ -36,7 +36,6 @@ import {
   FriendshipAddOptions,
   ContactGender,
   ContactType,
-  ScanStatus,
 }                           from 'wechaty-puppet'
 
 import oicq from 'oicq'
