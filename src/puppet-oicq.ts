@@ -34,6 +34,8 @@ import {
   MessageType,
   log,
   FriendshipAddOptions,
+  ContactGender,
+  ContactType,
 }                           from 'wechaty-puppet'
 
 import oicq from 'oicq'
@@ -94,7 +96,6 @@ class PuppetOICQ extends Puppet {
         process.stdin.once('data', () => {
           console.log('enter pressed, try to login')
           this.login()
-          // this.emit('login', { contactId: this.QQNumber || '' })
         })
       })
       .on('system.login.error', function (this:any, error: any) {
@@ -107,11 +108,9 @@ class PuppetOICQ extends Puppet {
       that.messageStore[oicqMessage.message_id] = oicqMessage
       console.log(oicqMessage.message_id)
       that.emit('message', { messageId: oicqMessage.message_id })
-      // /*if (e.raw_message === "hello") {
-      //   e.reply("hello world")
-      // }*/
     })
-
+    
+    this.login(this.qq.toString())
     this.state.on(true)
   }
 
@@ -155,6 +154,7 @@ class PuppetOICQ extends Puppet {
 
     // TODO: do the logout job
   }
+
 
   override ding (data?: string): void {
     log.silly('PuppetOICQ', 'ding(%s)', data || '')
@@ -261,12 +261,19 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  protected contactRawPayload (_contactId: string): Promise<any> {
-    throw new Error('Method not implemented.')
+  async contactRawPayload (_contactId: string): Promise<any> {
+    return {'qq': _contactId};
   }
 
-  protected contactRawPayloadParser (_rawPayload: any): Promise<ContactPayload> {
-    throw new Error('Method not implemented.')
+  async contactRawPayloadParser (_rawPayload: any): Promise<ContactPayload> {
+    return {
+      avatar : 'unknown',
+      gender : ContactGender.Unknown,
+      id     : _rawPayload['qq'],
+      name   : 'unknown',
+      phone : ['00000'],
+      type   : ContactType.Individual,
+    }
   }
 
   friendshipAccept (_friendshipId: string): Promise<void> {
