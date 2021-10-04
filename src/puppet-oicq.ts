@@ -36,6 +36,7 @@ import {
   FriendshipAddOptions,
   ContactGender,
   ContactType,
+  ScanStatus,
 }                           from 'wechaty-puppet'
 
 import oicq from 'oicq'
@@ -57,7 +58,8 @@ class PuppetOICQ extends Puppet {
     return this.#oicqClient!
   }
 
-  messageStore = {} as any
+  private messageStore : { [id: string]: any}
+  private contactStore : { [id: string]: any }
 
   qq: number
 
@@ -76,6 +78,9 @@ class PuppetOICQ extends Puppet {
       }
       this.qq = qq
     }
+
+    this.messageStore = {}
+    this.contactStore = {}
   }
 
   override async start (): Promise<void> {
@@ -89,7 +94,11 @@ class PuppetOICQ extends Puppet {
 
     this.state.on('pending')
 
-    this.#oicqClient = oicq.createClient(this.qq)
+    this.#oicqClient = oicq.createClient(this.qq, {
+      log_level: 'off',
+    })
+
+    const puppetThis = this
 
     this.oicqClient
       .on('system.login.qrcode', function (this:any) {
@@ -103,15 +112,20 @@ class PuppetOICQ extends Puppet {
       })
       .login()
 
-    const that = this
     this.oicqClient.on('message', function (oicqMessage: any) {
-      that.messageStore[oicqMessage.message_id] = oicqMessage
-      console.log(oicqMessage.message_id)
-      that.emit('message', { messageId: oicqMessage.message_id })
+      puppetThis.messageStore[oicqMessage.message_id] = oicqMessage
+      puppetThis.emit('message', { messageId: oicqMessage.message_id })
     })
 
-    await this.login(this.qq.toString())
-    this.state.on(true)
+    this.oicqClient.on('system.online', async function () {
+      puppetThis.state.on(true)
+
+      for (const [id, friend] of this.fl.entries()) {
+        puppetThis.contactStore[id.toString()] = friend
+      }
+      await puppetThis.login(puppetThis.qq.toString())
+    })
+
   }
 
   override async stop (): Promise<void> {
@@ -261,16 +275,23 @@ class PuppetOICQ extends Puppet {
   }
 
   async contactRawPayload (_contactId: string): Promise<any> {
-    return { qq: _contactId }
+    log.verbose('PuppetOICQ', 'contactRawPayload(%s)', _contactId)
+    return this.contactStore[_contactId]!
   }
 
   async contactRawPayloadParser (_rawPayload: any): Promise<ContactPayload> {
+    const genderStringToType: { [key: string]: ContactGender } = {
+      female: ContactGender.Female,
+      male: ContactGender.Male,
+      unknown: ContactGender.Unknown,
+    }
+
     return {
       avatar : 'unknown',
-      gender : ContactGender.Unknown,
-      id     : _rawPayload['qq'],
-      name   : 'unknown',
-      phone : ['00000'],
+      gender : genderStringToType[_rawPayload.sex]!,
+      id     : _rawPayload.user_id,
+      name   : _rawPayload.nickname,
+      phone : ['unkown'],
       type   : ContactType.Individual,
     }
   }
