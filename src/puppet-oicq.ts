@@ -109,8 +109,8 @@ class PuppetOICQ extends Puppet {
       console.log(oicqMessage.message_id)
       that.emit('message', { messageId: oicqMessage.message_id })
     })
-    
-    this.login(this.qq.toString())
+
+    await this.login(this.qq.toString())
     this.state.on(true)
   }
 
@@ -154,7 +154,6 @@ class PuppetOICQ extends Puppet {
 
     // TODO: do the logout job
   }
-
 
   override ding (data?: string): void {
     log.silly('PuppetOICQ', 'ding(%s)', data || '')
@@ -262,7 +261,7 @@ class PuppetOICQ extends Puppet {
   }
 
   async contactRawPayload (_contactId: string): Promise<any> {
-    return {'qq': _contactId};
+    return { qq: _contactId }
   }
 
   async contactRawPayloadParser (_rawPayload: any): Promise<ContactPayload> {
