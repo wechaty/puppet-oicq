@@ -60,7 +60,7 @@ class PuppetOICQ extends Puppet {
   private messageStore : { [id: string]: any}
   private contactStore : { [id: string]: any }
   private roomStore : { [id: string]: any }
-
+  private loginCheckInterval: any
   qq: number
 
   constructor (
@@ -103,10 +103,12 @@ class PuppetOICQ extends Puppet {
 
     this.oicqClient
       .on('system.login.qrcode', function (this:any) {
-        process.stdin.once('data', () => {
-          console.log('enter pressed, try to login')
-          this.login()
-        })
+        if (puppetThis.loginCheckInterval === undefined) {
+          puppetThis.loginCheckInterval = setInterval(() => {
+            this.login()
+            log.verbose('check if QR code is scanned (try to login) if not scanned, new QR code will be shown')
+          }, 15000)
+        }
       })
       .on('system.login.error', function (this:any, error: any) {
         if (error.code < 0) { this.login() }
@@ -151,6 +153,7 @@ class PuppetOICQ extends Puppet {
 
     this.oicqClient.on('system.online', async function () {
       puppetThis.state.on(true)
+      clearInterval(puppetThis.loginCheckInterval)
 
       for (const [id, friend] of this.fl.entries()) {
         puppetThis.contactStore[id.toString()] = friend
