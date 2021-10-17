@@ -155,7 +155,7 @@ class PuppetOICQ extends Puppet {
       for (const [id, friend] of this.fl.entries()) {
         puppetThis.contactStore[id.toString()] = friend
       }
-      puppetThis.login(puppetThis.qq.toString())
+      void puppetThis.login(puppetThis.qq.toString())
     })
   }
 
