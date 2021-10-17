@@ -59,6 +59,7 @@ class PuppetOICQ extends Puppet {
 
   private messageStore : { [id: string]: any}
   private contactStore : { [id: string]: any }
+  private roomStore : { [id: string]: any }
 
   qq: number
 
@@ -80,6 +81,7 @@ class PuppetOICQ extends Puppet {
 
     this.messageStore = {}
     this.contactStore = {}
+    this.roomStore = {}
   }
 
   override async onStart (): Promise<void> {
@@ -108,6 +110,37 @@ class PuppetOICQ extends Puppet {
       oicqMessage: any,
     ) {
       puppetThis.messageStore[oicqMessage.message_id] = oicqMessage
+
+      // Case 1: for group or discuss message
+      // Case 2: new friend added after bot start
+      // should set unknown contact info
+      const senderInfo = oicqMessage.sender
+      const senderId = senderInfo.user_id
+
+      if (!(senderId.toString() in puppetThis.contactStore)) {
+        puppetThis.contactStore[senderId.toString()] = senderInfo
+      }
+
+      if (oicqMessage.message_type === 'group') {
+        const groupId = oicqMessage.group_id.toString()
+        const groupName = oicqMessage.group_name
+
+        puppetThis.roomStore[groupId] = {
+          id: groupId,
+          topic: groupName,
+        }
+      }
+
+      if (oicqMessage.message_type === 'discuss') {
+        const discussId = oicqMessage.discuss_id.toString()
+        const discussName = oicqMessage.discuss_name
+
+        puppetThis.roomStore[discussId] = {
+          id: discussId,
+          topic: discussName,
+        }
+      }
+
       puppetThis.emit('message', { messageId: oicqMessage.message_id })
     })
 
@@ -139,15 +172,43 @@ class PuppetOICQ extends Puppet {
 
   override async messageRawPayloadParser (rawPayload: any): Promise<MessagePayload> {
     // OICQ qq message Payload -> Puppet message payload
+    let roomId : undefined | string
+    let toId   : undefined | string
 
-    const payload: MessagePayload = {
+    if (rawPayload.message_type === 'private') {
+      toId = rawPayload.self_id
+    } else if (rawPayload.message_type === 'group') {
+      roomId = rawPayload.group_id
+    } else if (rawPayload.message_type === 'discuss') {
+      roomId = rawPayload.discuss_id
+    }
+
+    const payloadBase = {
       fromId: rawPayload.sender.user_id,
       id: rawPayload.message_id,
       text: rawPayload.raw_message,
       timestamp: Date.now(),
-      toId: rawPayload.user_id,
       type: MessageType.Text, // TODO: need to change if message type changed to image and so on
     }
+
+    let payload: MessagePayload
+
+    if (toId) {
+      payload = {
+        ...payloadBase,
+        roomId,
+        toId,
+      }
+    } else if (roomId) {
+      payload = {
+        ...payloadBase,
+        roomId,
+        toId,
+      }
+    } else {
+      throw new Error('neither roomId nor toId')
+    }
+
     return payload
   }
 
@@ -156,11 +217,17 @@ class PuppetOICQ extends Puppet {
   }
 
   override async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
-    const userId = parseInt(conversationId)
-    if (isNaN(userId)) {
-      throw new Error('oicqClient.sendPrivateMsg() requires number id')
+    const conversationNumber = parseInt(conversationId)
+    if (isNaN(conversationNumber)) {
+      throw new Error('puppet.messageSendText requires number id')
     }
-    await this.oicqClient.sendPrivateMsg(userId, text)
+
+    // check conversationNumber is in group list(bot has join the group of conversationNumber)
+    if (this.oicqClient.gl.has(conversationNumber)) {
+      await this.oicqClient.sendGroupMsg(conversationNumber, text)
+    } else {
+      await this.oicqClient.sendPrivateMsg(conversationNumber, text)
+    }
   }
 
   override async messageSendContact (_conversationId: string, _contactId: string): Promise<string | void> {
@@ -362,11 +429,13 @@ class PuppetOICQ extends Puppet {
   }
 
   override roomRawPayload (_roomId: string): Promise<any> {
-    throw new Error('Method not implemented.')
+    log.verbose('PuppetOICQ', 'roomRawPayload(%s)', _roomId)
+    return this.roomStore[_roomId]!
   }
 
   override roomRawPayloadParser (_rawPayload: any): Promise<RoomPayload> {
-    throw new Error('Method not implemented.')
+    log.verbose('PuppetOICQ', 'roomRawPayloadParser(%s)', _rawPayload)
+    return _rawPayload
   }
 
   override roomAnnounce(roomId: string): Promise<string>
@@ -375,8 +444,9 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override roomMemberList (_roomId: string): Promise<string[]> {
-    throw new Error('Method not implemented.')
+  override async roomMemberList (_roomId: string): Promise<string[]> {
+    log.verbose('PuppetOICQ', 'roomMemberList(%s)', _roomId)
+    return []
   }
 
   override roomMemberRawPayload (_roomId: string, _contactId: string): Promise<any> {
