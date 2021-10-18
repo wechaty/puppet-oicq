@@ -54,10 +54,13 @@ class PuppetOICQ extends Puppet {
 
   #oicqClient?: oicq.Client
   protected get oicqClient (): oicq.Client {
-    return this.#oicqClient!
+    if (!this.#oicqClient) {
+      throw new Error('no oicq client!')
+    }
+    return this.#oicqClient
   }
 
-  private messageStore : { [id: string]: any}
+  private messageStore : { [id: string]: oicq.MessageEventData}
   private contactStore : { [id: string]: any }
   private roomStore : { [id: string]: any }
   private loginCheckInterval: any
@@ -94,7 +97,9 @@ class PuppetOICQ extends Puppet {
     const puppetThis = this
 
     this.oicqClient
-      .on('system.login.qrcode', function (this:any) {
+      .on('system.login.qrcode', function (
+        this,
+      ) {
         if (puppetThis.loginCheckInterval === undefined) {
           puppetThis.loginCheckInterval = setInterval(() => {
             this.login()
@@ -102,14 +107,17 @@ class PuppetOICQ extends Puppet {
           }, 15000)
         }
       })
-      .on('system.login.error', function (this:any, error: any) {
+      .on('system.login.error', function (
+        this,
+        error,
+      ) {
         if (error.code < 0) { this.login() }
       })
       .login()
 
     this.oicqClient.on('message', function (
-      this: oicq.Client,
-      oicqMessage: any,
+      this,
+      oicqMessage,
     ) {
       puppetThis.messageStore[oicqMessage.message_id] = oicqMessage
 
@@ -149,13 +157,13 @@ class PuppetOICQ extends Puppet {
     this.oicqClient.on('system.online', function (
       this: oicq.Client,
     ) {
-      puppetThis.state.on(true)
+      // puppetThis.state.on(true)
       clearInterval(puppetThis.loginCheckInterval)
 
       for (const [id, friend] of this.fl.entries()) {
         puppetThis.contactStore[id.toString()] = friend
       }
-      void puppetThis.login(puppetThis.qq.toString())
+      puppetThis.login(puppetThis.qq.toString())
     })
   }
 
@@ -163,8 +171,9 @@ class PuppetOICQ extends Puppet {
     log.verbose('PuppetOICQ', 'onStop()')
 
     // TODO: should we close the oicqClient?
-    this.oicqClient.terminate()
+    const oicqClient = this.oicqClient
     this.#oicqClient = undefined
+    oicqClient.terminate()
   }
 
   override ding (data?: string): void {
@@ -173,21 +182,23 @@ class PuppetOICQ extends Puppet {
     setTimeout(() => this.emit('dong', { data: data || '' }), 1000)
   }
 
-  override async messageRawPayloadParser (rawPayload: any): Promise<MessagePayload> {
+  override async messageRawPayloadParser (
+    rawPayload: oicq.MessageEventData,
+  ): Promise<MessagePayload> {
     // OICQ qq message Payload -> Puppet message payload
     let roomId : undefined | string
     let toId   : undefined | string
 
     if (rawPayload.message_type === 'private') {
-      toId = rawPayload.self_id
+      toId = String(rawPayload.self_id)
     } else if (rawPayload.message_type === 'group') {
-      roomId = rawPayload.group_id
-    } else if (rawPayload.message_type === 'discuss') {
-      roomId = rawPayload.discuss_id
+      roomId = String(rawPayload.group_id)
+    } else { // (rawPayload.message_type === 'discuss') {
+      roomId = String(rawPayload.discuss_id)
     }
 
     const payloadBase = {
-      fromId: rawPayload.sender.user_id,
+      fromId: String(rawPayload.sender.user_id),
       id: rawPayload.message_id,
       text: rawPayload.raw_message,
       timestamp: Date.now(),
@@ -215,8 +226,12 @@ class PuppetOICQ extends Puppet {
     return payload
   }
 
-  override async messageRawPayload (oicqMessageId: string): Promise<any> {
-    return this.messageStore[oicqMessageId]
+  override async messageRawPayload (oicqMessageId: string): Promise<oicq.MessageEventData> {
+    const rawPayload = this.messageStore[oicqMessageId]
+    if (!rawPayload) {
+      throw new Error('NOPAYLOAD')
+    }
+    return rawPayload
   }
 
   override async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
