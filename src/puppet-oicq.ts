@@ -428,8 +428,9 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override roomList (): Promise<string[]> {
-    throw new Error('Method not implemented.')
+  override async roomList (): Promise<string[]> {
+    // TODO: implement
+    return []
   }
 
   override roomQRCode (_roomId: string): Promise<string> {
