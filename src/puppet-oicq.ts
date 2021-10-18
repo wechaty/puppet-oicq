@@ -429,6 +429,7 @@ class PuppetOICQ extends Puppet {
   }
 
   override async roomList (): Promise<string[]> {
+    log.verbose('PuppetOICQ', 'roomList()')
     // TODO: implement
     return []
   }
