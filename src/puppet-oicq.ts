@@ -43,6 +43,7 @@ import oicq from 'oicq'
 import {
   VERSION,
 }                           from './config.js'
+import * as qqId from './qq-id.js'
 
 export type PuppetOICQOptions = PuppetOptions & {
   qq?: number
@@ -125,14 +126,14 @@ class PuppetOICQ extends Puppet {
       // Case 2: new friend added after bot start
       // should set unknown contact info
       const senderInfo = oicqMessage.sender
-      const senderId = 'qq_' + senderInfo.user_id.toString()
+      const senderId = qqId.toUserId(senderInfo.user_id)
 
       if (!(senderId in puppetThis.contactStore)) {
         puppetThis.contactStore[senderId] = senderInfo
       }
 
       if (oicqMessage.message_type === 'group') {
-        const groupId = 'group_' + oicqMessage.group_id.toString()
+        const groupId   = qqId.toGroupId(oicqMessage.group_id)
         const groupName = oicqMessage.group_name
 
         puppetThis.roomStore[groupId] = {
@@ -142,8 +143,11 @@ class PuppetOICQ extends Puppet {
       }
 
       if (oicqMessage.message_type === 'discuss') {
-        const discussId = 'group_' + oicqMessage.discuss_id.toString()
-        const discussName = oicqMessage.discuss_name
+        /**
+         * Huan(202110): what is a message_type === 'discuss'?
+         */
+        const discussId     = qqId.toGroupId(oicqMessage.discuss_id)
+        const discussName   = oicqMessage.discuss_name
 
         puppetThis.roomStore[discussId] = {
           id: discussId,
@@ -161,9 +165,9 @@ class PuppetOICQ extends Puppet {
       clearInterval(puppetThis.loginCheckInterval)
 
       for (const [id, friend] of this.fl.entries()) {
-        puppetThis.contactStore['qq_' + id.toString()] = friend
+        puppetThis.contactStore[qqId.toUserId(id)] = friend
       }
-      puppetThis.login('qq_' + puppetThis.qq.toString())
+      puppetThis.login(qqId.toUserId(puppetThis.qq))
     })
   }
 
@@ -190,15 +194,18 @@ class PuppetOICQ extends Puppet {
     let toId   : undefined | string
 
     if (rawPayload.message_type === 'private') {
-      toId = 'qq_' + String(rawPayload.self_id)
+      toId = qqId.toUserId(rawPayload.self_id)
     } else if (rawPayload.message_type === 'group') {
-      roomId = 'group_' + String(rawPayload.group_id)
+      roomId = qqId.toGroupId(rawPayload.group_id)
     } else { // (rawPayload.message_type === 'discuss') {
-      roomId = 'group_' + String(rawPayload.discuss_id)
+      /**
+       * Huan(202110): what is a message_type === 'discuss'?
+       */
+      roomId = qqId.toGroupId(rawPayload.discuss_id)
     }
 
     const payloadBase = {
-      fromId: 'qq_' + String(rawPayload.sender.user_id),
+      fromId: qqId.toUserId(rawPayload.sender.user_id),
       id: rawPayload.message_id,
       text: rawPayload.raw_message,
       timestamp: Date.now(),
@@ -234,21 +241,15 @@ class PuppetOICQ extends Puppet {
 
   override async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
     // test if conversationId starts with group_ or qq_
-    const isGroupMessage = conversationId.startsWith('group_')
-    const isPrivateMessage = conversationId.startsWith('qq_')
 
-    if (isGroupMessage || isPrivateMessage) {
-      const conversationNumber = parseInt(conversationId.replace(/^(group_|qq_)/, ''))
-      if (isNaN(conversationNumber)) {
-        throw new Error('puppet.messageSendText requires number id after group_ or qq_ prefix')
-      }
-      if (isGroupMessage) {
-        await this.oicqClient.sendGroupMsg(conversationNumber, text)
-      } else if (isPrivateMessage) {
-        await this.oicqClient.sendPrivateMsg(conversationNumber, text)
-      }
+    const conversationNumber = qqId.toQqNumber(conversationId)
+
+    if (qqId.isGroupId(conversationId)) {
+      await this.oicqClient.sendGroupMsg(conversationNumber, text)
+    } else if (qqId.isUserId(conversationId)) {
+      await this.oicqClient.sendPrivateMsg(conversationNumber, text)
     } else {
-      throw new Error('puppet.messageSendText requires private or group message')
+      throw new Error('conversationId: ' + conversationId + ' is neither QQ_USER_TYPE nor QQ_GROUP_TYPE')
     }
   }
 
