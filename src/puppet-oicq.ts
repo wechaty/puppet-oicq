@@ -125,14 +125,14 @@ class PuppetOICQ extends Puppet {
       // Case 2: new friend added after bot start
       // should set unknown contact info
       const senderInfo = oicqMessage.sender
-      const senderId = senderInfo.user_id
+      const senderId = 'qq_' + senderInfo.user_id.toString()
 
-      if (!(senderId.toString() in puppetThis.contactStore)) {
-        puppetThis.contactStore[senderId.toString()] = senderInfo
+      if (!(senderId in puppetThis.contactStore)) {
+        puppetThis.contactStore[senderId] = senderInfo
       }
 
       if (oicqMessage.message_type === 'group') {
-        const groupId = oicqMessage.group_id.toString()
+        const groupId = 'group_' + oicqMessage.group_id.toString()
         const groupName = oicqMessage.group_name
 
         puppetThis.roomStore[groupId] = {
@@ -142,7 +142,7 @@ class PuppetOICQ extends Puppet {
       }
 
       if (oicqMessage.message_type === 'discuss') {
-        const discussId = oicqMessage.discuss_id.toString()
+        const discussId = 'group_' + oicqMessage.discuss_id.toString()
         const discussName = oicqMessage.discuss_name
 
         puppetThis.roomStore[discussId] = {
@@ -161,9 +161,9 @@ class PuppetOICQ extends Puppet {
       clearInterval(puppetThis.loginCheckInterval)
 
       for (const [id, friend] of this.fl.entries()) {
-        puppetThis.contactStore[id.toString()] = friend
+        puppetThis.contactStore['qq_' + id.toString()] = friend
       }
-      puppetThis.login(puppetThis.qq.toString())
+      puppetThis.login('qq_' + puppetThis.qq.toString())
     })
   }
 
@@ -190,15 +190,15 @@ class PuppetOICQ extends Puppet {
     let toId   : undefined | string
 
     if (rawPayload.message_type === 'private') {
-      toId = String(rawPayload.self_id)
+      toId = 'qq_' + String(rawPayload.self_id)
     } else if (rawPayload.message_type === 'group') {
-      roomId = String(rawPayload.group_id)
+      roomId = 'group_' + String(rawPayload.group_id)
     } else { // (rawPayload.message_type === 'discuss') {
-      roomId = String(rawPayload.discuss_id)
+      roomId = 'group_' + String(rawPayload.discuss_id)
     }
 
     const payloadBase = {
-      fromId: String(rawPayload.sender.user_id),
+      fromId: 'qq_' + String(rawPayload.sender.user_id),
       id: rawPayload.message_id,
       text: rawPayload.raw_message,
       timestamp: Date.now(),
@@ -210,14 +210,12 @@ class PuppetOICQ extends Puppet {
     if (toId) {
       payload = {
         ...payloadBase,
-        roomId,
         toId,
       }
     } else if (roomId) {
       payload = {
         ...payloadBase,
         roomId,
-        toId,
       }
     } else {
       throw new Error('neither roomId nor toId')
@@ -235,16 +233,22 @@ class PuppetOICQ extends Puppet {
   }
 
   override async messageSendText (conversationId: string, text: string, _mentionIdList?: string[]): Promise<string | void> {
-    const conversationNumber = parseInt(conversationId)
-    if (isNaN(conversationNumber)) {
-      throw new Error('puppet.messageSendText requires number id')
-    }
+    // test if conversationId starts with group_ or qq_
+    const isGroupMessage = conversationId.startsWith('group_')
+    const isPrivateMessage = conversationId.startsWith('qq_')
 
-    // check conversationNumber is in group list(bot has join the group of conversationNumber)
-    if (this.oicqClient.gl.has(conversationNumber)) {
-      await this.oicqClient.sendGroupMsg(conversationNumber, text)
+    if (isGroupMessage || isPrivateMessage) {
+      const conversationNumber = parseInt(conversationId.replace(/^(group_|qq_)/, ''))
+      if (isNaN(conversationNumber)) {
+        throw new Error('puppet.messageSendText requires number id after group_ or qq_ prefix')
+      }
+      if (isGroupMessage) {
+        await this.oicqClient.sendGroupMsg(conversationNumber, text)
+      } else if (isPrivateMessage) {
+        await this.oicqClient.sendPrivateMsg(conversationNumber, text)
+      }
     } else {
-      await this.oicqClient.sendPrivateMsg(conversationNumber, text)
+      throw new Error('puppet.messageSendText requires private or group message')
     }
   }
 
