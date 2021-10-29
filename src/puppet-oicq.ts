@@ -18,26 +18,12 @@
  *
  */
 
-import {
-  ContactPayload,
-  FileBox,
-  FriendshipPayload,
-  ImageType,
-  MessagePayload,
-  Puppet,
-  PuppetOptions,
-  RoomInvitationPayload,
-  RoomMemberPayload,
-  RoomPayload,
-  UrlLinkPayload,
-  MiniProgramPayload,
-  MessageType,
-  log,
-  FriendshipAddOptions,
-  ContactGender,
-  ContactType,
-}                           from 'wechaty-puppet'
+import * as PUPPET from 'wechaty-puppet'
+import { log } from 'wechaty-puppet'
 
+import type {
+  FileBoxInterface,
+}                       from 'file-box'
 import oicq from 'oicq'
 
 import {
@@ -45,11 +31,11 @@ import {
 }                           from './config.js'
 import * as qqId from './qq-id.js'
 
-export type PuppetOICQOptions = PuppetOptions & {
+export type PuppetOICQOptions = PUPPET.PuppetOptions & {
   qq?: number
 }
 
-class PuppetOICQ extends Puppet {
+class PuppetOICQ extends PUPPET.Puppet {
 
   static override readonly VERSION = VERSION
 
@@ -188,7 +174,7 @@ class PuppetOICQ extends Puppet {
 
   override async messageRawPayloadParser (
     rawPayload: oicq.MessageEventData,
-  ): Promise<MessagePayload> {
+  ): Promise<PUPPET.payload.Message> {
     // OICQ qq message Payload -> Puppet message payload
     let roomId : undefined | string
     let toId   : undefined | string
@@ -209,10 +195,10 @@ class PuppetOICQ extends Puppet {
       id: rawPayload.message_id,
       text: rawPayload.raw_message,
       timestamp: Date.now(),
-      type: MessageType.Text, // TODO: need to change if message type changed to image and so on
+      type: PUPPET.type.Message.Text, // TODO: need to change if message type changed to image and so on
     }
 
-    let payload: MessagePayload
+    let payload: PUPPET.payload.Message
 
     if (toId) {
       payload = {
@@ -257,15 +243,15 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override async messageSendFile (_conversationId: string, _file: FileBox): Promise<string | void> {
+  override async messageSendFile (_conversationId: string, _file: FileBoxInterface): Promise<string | void> {
     throw new Error('Method not implemented.')
   }
 
-  override async messageSendMiniProgram (_conversationId: string, _miniProgramPayload: MiniProgramPayload): Promise<string | void> {
+  override async messageSendMiniProgram (_conversationId: string, _miniProgramPayload: PUPPET.payload.MiniProgram): Promise<string | void> {
     throw new Error('Method not implemented.')
   }
 
-  override async messageSendUrl (_conversationId: string, _urlLinkPayload: UrlLinkPayload): Promise<string | void> {
+  override async messageSendUrl (_conversationId: string, _urlLinkPayload: PUPPET.payload.UrlLink): Promise<string | void> {
     throw new Error('Method not implemented.')
   }
 
@@ -305,9 +291,9 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override contactAvatar(contactId: string): Promise<FileBox>
-  override contactAvatar(contactId: string, file: FileBox): Promise<void>
-  override contactAvatar (_contactId: any, _file?: any): Promise<void> | Promise<FileBox> {
+  override contactAvatar(contactId: string): Promise<FileBoxInterface>
+  override contactAvatar(contactId: string, file: FileBoxInterface): Promise<void>
+  override contactAvatar (_contactId: any, _file?: any): Promise<void> | Promise<FileBoxInterface> {
     throw new Error('Method not implemented.')
   }
 
@@ -332,11 +318,11 @@ class PuppetOICQ extends Puppet {
     return this.contactStore[_contactId]!
   }
 
-  override async contactRawPayloadParser (_rawPayload: any): Promise<ContactPayload> {
-    const genderStringToType: { [key: string]: ContactGender } = {
-      female: ContactGender.Female,
-      male: ContactGender.Male,
-      unknown: ContactGender.Unknown,
+  override async contactRawPayloadParser (_rawPayload: any): Promise<PUPPET.payload.Contact> {
+    const genderStringToType: { [key: string]: PUPPET.type.ContactGender } = {
+      female: PUPPET.type.ContactGender.Female,
+      male: PUPPET.type.ContactGender.Male,
+      unknown: PUPPET.type.ContactGender.Unknown,
     }
 
     return {
@@ -345,7 +331,7 @@ class PuppetOICQ extends Puppet {
       id     : _rawPayload.user_id,
       name   : _rawPayload.nickname,
       phone : ['unkown'],
-      type   : ContactType.Individual,
+      type   : PUPPET.type.Contact.Individual,
     }
   }
 
@@ -353,7 +339,7 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override friendshipAdd (_contactId: string, _option?: FriendshipAddOptions): Promise<void> {
+  override friendshipAdd (_contactId: string, _option?: PUPPET.type.FriendshipAddOptions): Promise<void> {
     throw new Error('Method not implemented.')
   }
 
@@ -369,7 +355,7 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override friendshipRawPayloadParser (_rawPayload: any): Promise<FriendshipPayload> {
+  override friendshipRawPayloadParser (_rawPayload: any): Promise<PUPPET.payload.Friendship> {
     throw new Error('Method not implemented.')
   }
 
@@ -381,19 +367,19 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override messageFile (_messageId: string): Promise<FileBox> {
+  override messageFile (_messageId: string): Promise<FileBoxInterface> {
     throw new Error('Method not implemented.')
   }
 
-  override messageImage (_messageId: string, _imageType: ImageType): Promise<FileBox> {
+  override messageImage (_messageId: string, _imageType: PUPPET.type.Image): Promise<FileBoxInterface> {
     throw new Error('Method not implemented.')
   }
 
-  override messageMiniProgram (_messageId: string): Promise<MiniProgramPayload> {
+  override messageMiniProgram (_messageId: string): Promise<PUPPET.payload.MiniProgram> {
     throw new Error('Method not implemented.')
   }
 
-  override messageUrl (_messageId: string): Promise<UrlLinkPayload> {
+  override messageUrl (_messageId: string): Promise<PUPPET.payload.UrlLink> {
     throw new Error('Method not implemented.')
   }
 
@@ -413,7 +399,7 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override roomInvitationRawPayloadParser (_rawPayload: any): Promise<RoomInvitationPayload> {
+  override roomInvitationRawPayloadParser (_rawPayload: any): Promise<PUPPET.payload.RoomInvitation> {
     throw new Error('Method not implemented.')
   }
 
@@ -421,7 +407,7 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override roomAvatar (_roomId: string): Promise<FileBox> {
+  override roomAvatar (_roomId: string): Promise<FileBoxInterface> {
     throw new Error('Method not implemented.')
   }
 
@@ -458,7 +444,7 @@ class PuppetOICQ extends Puppet {
     return this.roomStore[_roomId]!
   }
 
-  override roomRawPayloadParser (_rawPayload: any): Promise<RoomPayload> {
+  override roomRawPayloadParser (_rawPayload: any): Promise<PUPPET.payload.Room> {
     log.verbose('PuppetOICQ', 'roomRawPayloadParser(%s)', _rawPayload)
     return _rawPayload
   }
@@ -478,7 +464,7 @@ class PuppetOICQ extends Puppet {
     throw new Error('Method not implemented.')
   }
 
-  override roomMemberRawPayloadParser (_rawPayload: any): Promise<RoomMemberPayload> {
+  override roomMemberRawPayloadParser (_rawPayload: any): Promise<PUPPET.payload.RoomMember> {
     throw new Error('Method not implemented.')
   }
 

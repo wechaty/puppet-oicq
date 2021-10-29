@@ -1,6 +1,6 @@
 import {
   FileBox,
-}             from 'wechaty-puppet'
+}             from 'file-box'
 
 import { packageJson } from './package-json.js'
 
