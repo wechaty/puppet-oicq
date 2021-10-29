@@ -1,6 +1,6 @@
 {
   "name": "wechaty-puppet-oicq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "QQ Puppet for Wechaty",
   "type": "module",
   "exports": {
