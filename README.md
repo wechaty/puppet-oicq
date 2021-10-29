@@ -99,9 +99,11 @@ QQ 是国内和微信并列的两大聊天软件。我们在本次 Summer 2021 �
 
 ## History
 
-### main v0.1 (Sep 22, 2021)
+### main v1.0 (Oct 29, 2021)
 
-- ES Modules support
+Release v1.0 of Wechaty Puppet Provider for QQ.
+
+- v0.1 (Sep 22, 2021): ES Modules support
 
 ### v0.0.1 (Jun 22, 2021)
 
