@@ -21,6 +21,9 @@
 import * as PUPPET from 'wechaty-puppet'
 import { log } from 'wechaty-puppet'
 
+import {
+  FileBox,
+}                       from 'file-box'
 import type {
   FileBoxInterface,
 }                       from 'file-box'
@@ -28,10 +31,19 @@ import oicq from 'oicq'
 
 import {
   VERSION,
-}                           from './config.js'
-import * as qqId from './qq-id.js'
+}                 from './config.js'
+import * as qqId  from './qq-id.js'
 
-export type PuppetOICQOptions = PUPPET.PuppetOptions & {
+/**
+ * Skip generate QR Code png file
+ *  by disabling the event `system.login.qrcode`
+ *
+ * use event `internal.qrcode` instead
+ */
+import './monkey-patch.js'
+import type { EventScanPayload } from 'wechaty-puppet/dist/esm/src/schemas/event'
+
+type PuppetOICQOptions = PUPPET.PuppetOptions & {
   qq?: number
 }
 
@@ -39,15 +51,15 @@ class PuppetOICQ extends PUPPET.Puppet {
 
   static override readonly VERSION = VERSION
 
-  #oicqClient?: oicq.Client
+  protected _oicqClient?: oicq.Client
   protected get oicqClient (): oicq.Client {
-    if (!this.#oicqClient) {
+    if (!this._oicqClient) {
       throw new Error('no oicq client!')
     }
-    return this.#oicqClient
+    return this._oicqClient
   }
 
-  private messageStore : { [id: string]: oicq.MessageEventData}
+  private messageStore : { [id: string]: oicq.PrivateMessageEvent | oicq.GroupMessageEvent | oicq.DiscussMessageEvent}
   private contactStore : { [id: string]: any }
   private roomStore : { [id: string]: any }
   private loginCheckInterval: any
@@ -77,36 +89,54 @@ class PuppetOICQ extends PUPPET.Puppet {
   override async onStart (): Promise<void> {
     log.verbose('PuppetOICQ', 'onStart()')
 
-    this.#oicqClient = oicq.createClient(this.qq, {
+    this._oicqClient = oicq.createClient(this.qq, {
       log_level: 'off',
     })
 
-    const puppetThis = this
+    const that = this
+
+    /**
+     * Huan(202111): emit qrcode event
+     * @link https://github.com/takayama-lily/oicq/blob/b4288473745e8a9a50d7f56ab4a03d1df99aa5d6/lib/internal/listeners.ts#L92
+     */
+    const emitQrCode = this.wrapAsync(async function (
+      this  : oicq.Client,
+      image : Buffer,
+    ) {
+      const qrcode = await FileBox.fromBuffer(image).toQRCode()
+      const payload: EventScanPayload = {
+        qrcode,
+        status: PUPPET.type.ScanStatus.Waiting,
+      }
+      that.emit('scan', payload)
+    })
+    this.oicqClient.on('internal.qrcode', emitQrCode)
 
     this.oicqClient
-      .on('system.login.qrcode', function (
-        this,
+      .on('internal.qrcode', function (
+        this: oicq.Client,
       ) {
-        if (puppetThis.loginCheckInterval === undefined) {
-          puppetThis.loginCheckInterval = setInterval(() => {
-            this.login()
+        if (that.loginCheckInterval === undefined) {
+          that.loginCheckInterval = setInterval(() => {
+            that.wrapAsync(this.login())
             log.verbose('check if QR code is scanned (try to login) if not scanned, new QR code will be shown')
-          }, 15000)
+          }, 15 * 1000)
         }
       })
       .on('system.login.error', function (
         this,
         error,
       ) {
-        if (error.code < 0) { this.login() }
+        if (error.code < 0) { that.wrapAsync(this.login()) }
       })
       .login()
+      .catch(e => this.emit('error', e))
 
     this.oicqClient.on('message', function (
       this,
       oicqMessage,
     ) {
-      puppetThis.messageStore[oicqMessage.message_id] = oicqMessage
+      that.messageStore[oicqMessage.message_id] = oicqMessage
 
       // Case 1: for group or discuss message
       // Case 2: new friend added after bot start
@@ -114,15 +144,15 @@ class PuppetOICQ extends PUPPET.Puppet {
       const senderInfo = oicqMessage.sender
       const senderId = qqId.toUserId(senderInfo.user_id)
 
-      if (!(senderId in puppetThis.contactStore)) {
-        puppetThis.contactStore[senderId] = senderInfo
+      if (!(senderId in that.contactStore)) {
+        that.contactStore[senderId] = senderInfo
       }
 
       if (oicqMessage.message_type === 'group') {
         const groupId   = qqId.toGroupId(oicqMessage.group_id)
         const groupName = oicqMessage.group_name
 
-        puppetThis.roomStore[groupId] = {
+        that.roomStore[groupId] = {
           id: groupId,
           topic: groupName,
         }
@@ -135,25 +165,25 @@ class PuppetOICQ extends PUPPET.Puppet {
         const discussId     = qqId.toGroupId(oicqMessage.discuss_id)
         const discussName   = oicqMessage.discuss_name
 
-        puppetThis.roomStore[discussId] = {
+        that.roomStore[discussId] = {
           id: discussId,
           topic: discussName,
         }
       }
 
-      puppetThis.emit('message', { messageId: oicqMessage.message_id })
+      that.emit('message', { messageId: oicqMessage.message_id })
     })
 
     this.oicqClient.on('system.online', function (
       this: oicq.Client,
     ) {
       // puppetThis.state.on(true)
-      clearInterval(puppetThis.loginCheckInterval)
+      clearInterval(that.loginCheckInterval)
 
       for (const [id, friend] of this.fl.entries()) {
-        puppetThis.contactStore[qqId.toUserId(id)] = friend
+        that.contactStore[qqId.toUserId(id)] = friend
       }
-      puppetThis.login(qqId.toUserId(puppetThis.qq))
+      that.login(qqId.toUserId(that.qq))
     })
   }
 
@@ -162,7 +192,7 @@ class PuppetOICQ extends PUPPET.Puppet {
 
     // TODO: should we close the oicqClient?
     const oicqClient = this.oicqClient
-    this.#oicqClient = undefined
+    this._oicqClient = undefined
     oicqClient.terminate()
   }
 
@@ -173,14 +203,14 @@ class PuppetOICQ extends PUPPET.Puppet {
   }
 
   override async messageRawPayloadParser (
-    rawPayload: oicq.MessageEventData,
+    rawPayload: oicq.PrivateMessageEvent | oicq.GroupMessageEvent | oicq.DiscussMessageEvent,
   ): Promise<PUPPET.payload.Message> {
     // OICQ qq message Payload -> Puppet message payload
     let roomId : undefined | string
     let toId   : undefined | string
 
     if (rawPayload.message_type === 'private') {
-      toId = qqId.toUserId(rawPayload.self_id)
+      toId = qqId.toUserId(rawPayload.to_id)
     } else if (rawPayload.message_type === 'group') {
       roomId = qqId.toGroupId(rawPayload.group_id)
     } else { // (rawPayload.message_type === 'discuss') {
@@ -217,7 +247,7 @@ class PuppetOICQ extends PUPPET.Puppet {
     return payload
   }
 
-  override async messageRawPayload (oicqMessageId: string): Promise<oicq.MessageEventData> {
+  override async messageRawPayload (oicqMessageId: string): Promise<oicq.PrivateMessageEvent | oicq.GroupMessageEvent | oicq.DiscussMessageEvent> {
     const rawPayload = this.messageStore[oicqMessageId]
     if (!rawPayload) {
       throw new Error('NOPAYLOAD')
@@ -470,5 +500,8 @@ class PuppetOICQ extends PUPPET.Puppet {
 
 }
 
+export type {
+  PuppetOICQOptions,
+}
 export { PuppetOICQ }
 export default PuppetOICQ
