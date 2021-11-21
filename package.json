@@ -1,6 +1,6 @@
 {
   "name": "wechaty-puppet-oicq",
-  "version": "1.7.1",
+  "version": "1.10.1",
   "description": "QQ Puppet for Wechaty",
   "type": "module",
   "exports": {
@@ -53,11 +53,11 @@
     "@chatie/eslint-config": "^1.0.4",
     "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^1.0.3",
+    "@chatie/tsconfig": "^4.5.3",
     "tstest": "^1.0.1"
   },
   "peerDependencies": {
-    "wechaty-puppet": "^1.7.13"
+    "wechaty-puppet": "^1.10.2"
   },
   "dependencies": {
     "oicq": "^2.1.4"
